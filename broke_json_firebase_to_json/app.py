@@ -2,7 +2,7 @@ from threading import Thread
 import pandas as pd
 import json
 
-with open('bruto-2019-08-16.json', 'r') as f:
+with open('broken_original/bruto-2019-08-16.json', 'r') as f:
     data = json.load(f)
 
 df = pd.DataFrame(data)
@@ -17,13 +17,13 @@ def limpar_aspas(texto):
         if texto.find('\"') == -1:
             break
 
-        left = texto.find('\"') + 1
-        right = texto[left+1:].find('\"') + left + 1
-        remove = texto[left:right].find('\'')
+        left = texto.find('"') + 1
+        right = texto[left+1:].find('"') + left + 1
+        remove = texto[left:right].find("'")
         if remove != -1:
             texto = change_char(texto,left+remove,'')
-            texto = change_char(texto,left-1,'\'')
-            texto = change_char(texto,right-1,'\'')
+            texto = change_char(texto,left-1,"'")
+            texto = change_char(texto,right-1,"'")
         else:
             texto = change_char(texto,left-1,'')
             texto = change_char(texto,right-1,'')
