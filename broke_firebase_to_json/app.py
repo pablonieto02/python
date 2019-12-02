@@ -9,6 +9,8 @@ with open('broken_original/bruto-2019-08-16.json', 'r') as f:
     data = json.load(f)
 
 df = pd.DataFrame(data)
+del df['qualificacao']
+
 pd.set_option('display.max_colwidth', -1)
 pd.set_option('display.max_columns', 999)
 
