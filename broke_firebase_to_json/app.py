@@ -1,56 +1,66 @@
-from threading import Thread
-from multiprocessing import Process
+from multiprocessing import Process, Manager
 import functions as fu
 import pandas as pd
 import json
+import time
 
 print('lendo arquivo...')
-with open('broken_original/bruto-2019-08-16.json', 'r') as f:
+with open('broken_original/2019-11-19T19_34_02Z_oi-contabilizei_data.json', 'r') as f:
     data = json.load(f)
 
 df = pd.DataFrame(data)
 del df['qualificacao']
+df = df.dropna()
 
 pd.set_option('display.max_colwidth', -1)
 pd.set_option('display.max_columns', 999)
 
-class Th(Thread):
-    def __init__ (self, df, num_thread, caminho):
-        Thread.__init__(self)
-        self.num_thread = num_thread
-        self.df = df
-        self.caminho = caminho
-    def run(self):        
-        fu.gerar_arquivo(self.df,self.num_thread, self.caminho)
+def gerar_arquivo(df, num_thread, caminho, list_procs, pkey, index, end):
+    print('iniciado - de: ' + str(index) + ', até: ' + str(end) + ', arquivo: ' + str(thread_number) + ', thread: ' + str(pkey))
+    fu.gerar_arquivo(df, num_thread, caminho)
+    list_procs[pkey] = True
+    print('finalizado - de: ' + str(index) + ', até: ' + str(end) + ', arquivo: ' + str(thread_number) + ' thread: ' + str(pkey))
+
+def get_proc(list_procs):
+    for k,v in list_procs.items():
+        if v:
+            list_procs[k] = False
+            return k
+    return -1
 
 # Start App
 print('start App...')
 caminho = 'json_temp/json_thread'
 len_df = len(df)
-print ('lean: ' + str(len_df))
+print ('len: ' + str(len_df))
 index = 0
-index_range = 40000
+index_range = 30000
 thread_number = 0
 procs = []
-
+z = 0
 if __name__ == '__main__':
+    manager = Manager()
+    list_procs = manager.dict({ 1: True, 2: True, 3: True, 4: True, 5: True, 6: True})
     while True:
-        thread_number += 1
-        print('processor ' + str(thread_number) + ' iniciado')
-        if index + index_range < len_df:
-            end = index + index_range
-            print('index de: ' + str(index) + ' até: ' + str(end))
-            proc = Process(target=fu.gerar_arquivo, args=(df[index:end], thread_number, caminho,))
-            procs.append(proc)
-            proc.start()
+        pkey = get_proc(list_procs)
+        if pkey != -1:
+            thread_number += 1
+            if thread_number > 1:
+                z = 1
+            if index + index_range < len_df:
+                end = index + index_range
+                proc = Process(target=gerar_arquivo, args=(df[index+z:end],thread_number,caminho,list_procs,pkey,index+z,end,))
+                procs.append(proc)
+                proc.start()
+            else:
+                end = len_df
+                proc = Process(target=gerar_arquivo, args=(df[index+z:end],thread_number,caminho,list_procs,pkey,index+z,end,))
+                procs.append(proc)
+                proc.start()
+                break
+            index += index_range
         else:
-            end = len_df
-            print('index de: ' + str(index) + ' até: ' + str(end))
-            proc = Process(target=fu.gerar_arquivo, args=(df[index:end], thread_number, caminho,))
-            procs.append(proc)
-            proc.start()
-            break
-        index += index_range
-
+            print('esperando...')
+            time.sleep(15)
     for proc in procs:
         proc.join()

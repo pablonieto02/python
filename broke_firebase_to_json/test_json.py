@@ -1,7 +1,7 @@
 import os
 import json
 
-path = '/home/pablo/github/python/broke_json_firebase_to_json/json_temp'
+path = '/home/pablo/github/python/broke_firebase_to_json/json_temp'
 
 files = []
 # r=root, d=directories, f = files
