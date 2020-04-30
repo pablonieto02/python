@@ -1,7 +1,7 @@
 import pandas as pd
 import pyodbc
 
-constring = 'Driver={SQL Server Native Client 11.0}; Server=10.52.246.14;Database=ConPag;uid=cargaconpag;pwd=teste123456@'
+constring = ''
 
 # Abre um conexão unica para todas as operações
 conn = pyodbc.connect(constring)

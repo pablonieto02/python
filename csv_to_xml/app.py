@@ -3,7 +3,7 @@ import subprocess as sp
 import zipfile
 import io
 
-csv_file = open('Encontradas_PGENet_Para_Arquivar_Peixoto.csv', encoding='utf-8')
+csv_file = open('', encoding='utf-8')
 csv_reader = csv.reader(csv_file, delimiter=';')
 
 def criar_arquivo(cda, data, fluxo, tipo_situacao, cdsituacao):
